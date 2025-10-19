@@ -12,6 +12,7 @@ import fournisseurRoute from "./routes/fournisseurRoute.js";
 import laboRoute from "./routes/laboRoute.js";
 import productRoute from "./routes/productRoute.js";
 import remiseRoute from "./routes/remiseRoute.js";
+import excelRoute from "./routes/excelRoute.js";
 
 dotenv.config();
 connectDB();
@@ -39,6 +40,8 @@ app.use("/api/fournisseur", fournisseurRoute);
 app.use("/api/laboratoire", laboRoute);
 app.use("/api/produit", productRoute);
 app.use("/api/remise", remiseRoute);
+app.use("/api/excel", excelRoute);
+
 
 // Errors
 app.use(notFound);
