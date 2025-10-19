@@ -13,7 +13,7 @@ import laboRoute from "./routes/laboRoute.js";
 import productRoute from "./routes/productRoute.js";
 import remiseRoute from "./routes/remiseRoute.js";
 import excelRoute from "./routes/excelRoute.js";
-
+import uSers from "./routes/userRoute.js"
 dotenv.config();
 connectDB();
 
@@ -41,6 +41,8 @@ app.use("/api/laboratoire", laboRoute);
 app.use("/api/produit", productRoute);
 app.use("/api/remise", remiseRoute);
 app.use("/api/excel", excelRoute);
+app.use("/api/users", uSers);
+
 
 
 // Errors

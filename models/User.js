@@ -8,8 +8,9 @@ const userSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: String, enum: ["root", "admin"], default: "admin" },
     isActive: { type: Boolean, default: true },
-    canEdit: { type: Boolean, default: false }
-
+    canEdit: { type: Boolean, default: false },
+    canUpload: { type: Boolean, default: false },    // Add this
+    canDownload: { type: Boolean, default: false }   // Add this
   },
   { timestamps: true }
 );
