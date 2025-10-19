@@ -6,9 +6,8 @@ import { protect, rootOnly } from "../middlewares/authMiddlware.js";
 const router = express.Router();
 
 router.put("/:id/permissions", protect, rootOnly, async (req, res) => {
-  const requester = req.user;
-  if (requester.role !== "root")
-    return res.status(403).json({ message: "Forbidden" });
+  
+  
 
   const { id } = req.params;
   const { canEdit, canUpload, canDownload } = req.body;

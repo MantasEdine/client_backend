@@ -1,5 +1,5 @@
 import express from "express";
-import { protect, rootOnly } from "../middlewares/authMiddlware.js";
+import { protect, rootOnly, canEditOrRoot } from "../middlewares/authMiddlware.js";
 import {
   createFournisseur,
   getFournisseurs,
@@ -9,10 +9,9 @@ import {
 
 const router = express.Router();
 
-// Routes
-router.get("/", protect, getFournisseurs);              // Read (any logged user)
-router.post("/", protect, rootOnly, createFournisseur); // Create (Root only)
-router.put("/:id", protect, rootOnly, updateFournisseur); // Update (Root only)
-router.delete("/:id", protect, rootOnly, deleteFournisseur); // Delete (Root only)
+router.get("/", protect, getFournisseurs);
+router.post("/", protect, canEditOrRoot, createFournisseur); // Changed
+router.put("/:id", protect, canEditOrRoot, updateFournisseur); // Changed
+router.delete("/:id", protect, canEditOrRoot, deleteFournisseur); // Changed
 
 export default router;

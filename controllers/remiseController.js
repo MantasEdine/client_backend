@@ -15,22 +15,18 @@ export const createRemise = async (req, res) => {
     const fournisseur = await Fournisseur.findById(fournisseurId);
     if (!fournisseur) return res.status(404).json({ message: "Fournisseur introuvable" });
 
-    // Prevent duplicates
-    const existing = await Remise.findOne({ produit: produitId, fournisseur: fournisseurId });
-    if (existing) return res.status(400).json({ message: "Cette remise existe déjà" });
+    // Use findOneAndUpdate with upsert to create or update
+    const newRemise = await Remise.findOneAndUpdate(
+      { produit: produitId, fournisseur: fournisseurId },
+      { pourcentage: remise },
+      { upsert: true, new: true, runValidators: true }
+    );
 
-    const newRemise = await Remise.create({
-      produit: produitId,
-      fournisseur: fournisseurId,
-      remise,
-    });
-
-    res.status(201).json({ success: true, remise: newRemise });
+    res.status(200).json({ success: true, remise: newRemise });
   } catch (err) {
     res.status(500).json({ message: "Erreur serveur", error: err.message });
   }
 };
-
 // 📋 Get all remises (for all users)
 export const getRemises = async (req, res) => {
   try {

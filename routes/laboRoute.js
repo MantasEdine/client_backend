@@ -5,14 +5,13 @@ import {
   updateLaboratoire,
   deleteLaboratoire,
 } from "../controllers/laboController.js";
-import { protect, rootOnly } from "../middlewares/authMiddlware.js";
+import { protect, rootOnly, canEditOrRoot } from "../middlewares/authMiddlware.js";
 
 const router = express.Router();
 
-// Routes
-router.get("/", protect, getLaboratoires); // Any authenticated user
-router.post("/", protect, rootOnly, createLaboratoire); // Root only
-router.put("/:id", protect, rootOnly, updateLaboratoire); // Root only
-router.delete("/:id", protect, rootOnly, deleteLaboratoire); // Root only
+router.get("/", protect, getLaboratoires);
+router.post("/", protect, canEditOrRoot, createLaboratoire); // Changed
+router.put("/:id", protect, canEditOrRoot, updateLaboratoire); // Changed
+router.delete("/:id", protect, canEditOrRoot, deleteLaboratoire); // Changed
 
 export default router;

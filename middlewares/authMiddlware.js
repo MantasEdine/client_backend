@@ -40,3 +40,36 @@ export const rootOnly = (req, res, next) => {
     res.status(403).json({ message: "Accès refusé (Root uniquement)" });
   }
 };
+export const canEditOrRoot = (req, res, next) => {
+  
+  if (req.user.name === "Houssam Benani" || req.user.canEdit) {
+    console.log("✅ Edit access granted:", req.user.role, req.user.canEdit);
+    next();
+  } else {
+    console.log("❌ Edit access denied");
+    res.status(403).json({ message: "Vous n'avez pas la permission de modifier" });
+  }
+};
+
+// NEW: Check if user can upload (Root OR admin with canUpload permission)
+export const canUploadOrRoot = (req, res, next) => {
+  
+  if (req.role ==="root" || req.user.canUpload) {
+    console.log("✅ Upload access granted");
+    next();
+  } else {
+    console.log("❌ Upload access denied");
+    res.status(403).json({ message: "Vous n'avez pas la permission d'importer" });
+  }
+};
+
+// NEW: Check if user can download (Root OR admin with canDownload permission)
+export const canDownloadOrRoot = (req, res, next) => {
+  if (req.user.name === "Houssam Benani"|| req.user.canDownload) {
+    console.log("✅ Download access granted");
+    next();
+  } else {
+    console.log("❌ Download access denied");
+    res.status(403).json({ message: "Vous n'avez pas la permission de télécharger" });
+  }
+};
