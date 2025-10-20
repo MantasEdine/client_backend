@@ -1,59 +1,90 @@
+// server.js ou index.js
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import helmet from "helmet";
-import morgan from "morgan";
 import http from "http";
 import { Server } from "socket.io";
 import connectDB from "./config/db.js";
-import { notFound, errorHandler } from "./middlewares/errorHandle.js";
+
+// Routes imports
 import authRoutes from "./routes/authRoute.js";
-import fournisseurRoute from "./routes/fournisseurRoute.js";
-import laboRoute from "./routes/laboRoute.js";
-import productRoute from "./routes/productRoute.js";
-import remiseRoute from "./routes/remiseRoute.js";
-import excelRoute from "./routes/excelRoute.js";
-import uSers from "./routes/userRoute.js"
+import productRoutes from "./routes/productRoute.js";
+import laboRoutes from "./routes/laboRoute.js";
+import fournisseurRoutes from "./routes/fournisseurRoute.js";
+import remiseRoutes from "./routes/remiseRoute.js";
+import excelRoutes from "./routes/excelRoute.js";
+import userRoutes from "./routes/userRoute.js";
+import commandeRoutes from "./routes/commandeRoute.js"; // ✅ NOUVELLE ROUTE
+
+// Middleware imports
+import { notFound, errorHandler } from "./middlewares/errorHandle.js";
+
 dotenv.config();
-connectDB();
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  },
+});
 
-// Middlewares
-app.use(express.json());
+// Middleware
 app.use(cors());
-app.use(helmet());
-app.use(morgan("dev"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Attach io to req
+// Make io accessible in routes
 app.use((req, res, next) => {
   req.io = io;
   next();
 });
 
-// Routes
-app.get("/", (req, res) => res.send("✅ API en marche..."));
+// Database connection
+connectDB();
+
+// Socket.io connection
+io.on("connection", (socket) => {
+  console.log("✅ Client connecté:", socket.id);
+
+  socket.on("remise-update", () => {
+    console.log("📡 Broadcasting remise-updated event");
+    io.emit("remise-updated");
+  });
+
+  socket.on("permission-updated", (data) => {
+    console.log("📡 Broadcasting permission-updated event:", data);
+    io.emit("permission-updated", data);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Client déconnecté:", socket.id);
+  });
+});
+
+// API Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/fournisseur", fournisseurRoute);
-app.use("/api/laboratoire", laboRoute);
-app.use("/api/produit", productRoute);
-app.use("/api/remise", remiseRoute);
-app.use("/api/excel", excelRoute);
-app.use("/api/users", uSers);
+app.use("/api/produit", productRoutes);
+app.use("/api/laboratoire", laboRoutes);
+app.use("/api/fournisseur", fournisseurRoutes);
+app.use("/api/remise", remiseRoutes);
+app.use("/api/excel", excelRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/commande", commandeRoutes); // ✅ NOUVELLE ROUTE
 
+// Health check
+app.get("/", (req, res) => {
+  res.json({ message: "API en cours d'exécution" });
+});
 
-
-// Errors
+// Error handling
 app.use(notFound);
 app.use(errorHandler);
 
-// Socket.io
-io.on("connection", (socket) => {
-  console.log(`🟢 Nouveau client connecté: ${socket.id}`);
-  socket.on("disconnect", () => console.log(`🔴 Client déconnecté: ${socket.id}`));
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`🚀 Serveur lancé sur le port ${PORT}`));
+export { io };
