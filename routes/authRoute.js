@@ -20,7 +20,7 @@ router.get("/users", protect, rootOnly, async (req, res) => {
 router.get("/check-access/:id", protect, async (req, res) => {
   try {
     let token = req.headers.authorization.split(" ")[1];
-          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = req.params.id;
 
     // Validate ObjectId
